@@ -1,24 +1,14 @@
-FROM node:current-alpine3.11 as build-stage
+# Start with a base image containing Java runtime
+FROM openjdk:8-jdk-alpine
 
-# RUN mkdir -p /app
+# Add a volume pointing to /tmp
+VOLUME /tmp
 
-WORKDIR /usr/src/app
+# Make port 8080 available to the world outside this container
+# EXPOSE 8080
 
-COPY package.json package-lock.json ./
+# Add the application's jar to the container
+ADD target/my-movie-plan.jar my-movie-plan.jar
 
-RUN npm install
-
-COPY . .
-
-RUN npm run build --prod
-
-# CMD ["npm", "start"]
-
-FROM nginx:latest-alpine as prod-stage
-
-COPY --from=build-stage /usr/src/app/dist/my-movie-plan /user/share/nginx/html
-
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 4040
-
+# Run the jar file
+ENTRYPOINT ["java", "-jar", "my-movie-plan.jar"]
